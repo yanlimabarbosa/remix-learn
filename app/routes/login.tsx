@@ -1,4 +1,8 @@
+import { useFetcher } from "react-router";
 import type { Route } from "./+types/login";
+import { Spin } from "~/components/spin";
+
+
 
 export async function action({ request }: Route.ActionArgs) {
     const formData = await request.formData()
@@ -8,6 +12,8 @@ export async function action({ request }: Route.ActionArgs) {
     console.log("email", email)
     console.log("password", password)
 
+    await new Promise((resolve) => setTimeout(resolve, 3000))
+
     return {
         ok: true,
     }
@@ -15,6 +21,12 @@ export async function action({ request }: Route.ActionArgs) {
 
 export default function Login({ actionData }: Readonly<Route.ComponentProps>) {
     console.log("actionData", actionData)
+
+    const fetcher = useFetcher()
+    const busy = fetcher.state !== "idle"
+
+    console.log("FETCHER", fetcher)
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
             <div className="w-full max-w-md">
@@ -25,7 +37,7 @@ export default function Login({ actionData }: Readonly<Route.ComponentProps>) {
                             <p className="text-gray-600">Sign in to your account to continue</p>
                         </div>
 
-                        <form className="space-y-6" method="POST">
+                        <fetcher.Form className="space-y-6" method="POST">
                             <div className="space-y-1">
                                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                                     Email Address
@@ -62,22 +74,14 @@ export default function Login({ actionData }: Readonly<Route.ComponentProps>) {
 
                             <div>
                                 <button
+                                    disabled={busy}
                                     type="submit"
-                                    className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 transform hover:-translate-y-0.5"
+                                    className="disabled:cursor-not-allowed w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 transform hover:-translate-y-0.5"
                                 >
-                                    Sign in
+                                    {busy ? <Spin /> : "Sign in"}
                                 </button>
                             </div>
-                        </form>
-                    </div>
-
-                    <div className="bg-gray-50 px-8 py-4 text-center">
-                        <p className="text-sm text-gray-600">
-                            Don't have an account?{' '}
-                            <a href="#" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
-                                Sign up
-                            </a>
-                        </p>
+                        </fetcher.Form>
                     </div>
                 </div>
             </div>
